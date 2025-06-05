@@ -27,9 +27,9 @@ void leftTRotate(Node*& root, Node* head) {
 
   if (head->parent->parent != NULL) {
     Node* g = head->parent->parent;
-    if (head->parent = g->left)
+    if (head->parent == g->left)
       Node* u = g->right;
-    if (head->parent = g->right)
+    if (head->parent == g->right)
       Node* u = g->left;
 
     g->left = head;
@@ -44,9 +44,9 @@ void rightTRotate(Node*& root, Node* head) {
 
   if (head->parent->parent != NULL) {
     Node* g = head->parent->parent;
-    if (head->parent = g->left)
+    if (head->parent == g->left)
       Node* u = g->right;
-    if (head->parent = g->right)
+    if (head->parent == g->right)
       Node* u = g->left;
 
     g->right = head;
@@ -62,15 +62,15 @@ void leftLRotate(Node*& root, Node* head) {
 
   if (head->parent->parent != NULL) {
     Node* g = head->parent->parent;
-    if (head->parent = g->left)
+    if (head->parent == g->left)
       Node* u = g->right;
-    if (head->parent = g->right)
+    if (head->parent == g->right)
       Node* u = g->left;
 
     if (head->parent->left != NULL)
       g->right = head->parent->left;
     g->parent = head->parent;
-    if (g = root)
+    if (g == root)
       root = head->parent;
     head->parent->left = g;
     g->red = true;
@@ -82,15 +82,15 @@ void rightLRotate(Node*& root, Node* head) {
 
   if (head->parent->parent != NULL) {
     Node* g = head->parent->parent;
-    if (head->parent = g->left)
+    if (head->parent == g->left)
       Node* u = g->right;
-    if (head->parent = g->right)
+    if (head->parent == g->right)
       Node* u = g->left;
 
     if (head->parent->right != NULL)
       g->left = head->parent->right;
     g->parent = head->parent;
-    if (g = root)
+    if (g == root)
       root = head->parent;
     head->parent->right = g;
     g->red = true;
@@ -110,10 +110,8 @@ void rightLRotate(Node*& root, Node* head) {
 */
 void filter(Node*& root, Node* head) {
 
-  cout << head->value << endl;
   if (head->parent->parent != NULL) {
     Node* g = head->parent->parent;
-    cout << g->value << endl;
     Node* u = NULL;
     if (head->parent == g->left)
       u = g->right;
@@ -217,6 +215,111 @@ void print(Node* head, int depth) {
   if (head->left != NULL) {
     print(head->left, depth + 1);
   }
+}
+
+void del(Node* head, int in, Node*& root) {
+  //when there is no children
+  if (head->right == NULL && head->left == NULL && head->value == in) {
+    if (head->parent->right == head) {
+      head->parent->right = NULL;
+      head->parent = NULL;
+    }
+    else if (head->parent->left == head) {
+      head->parent->left = NULL;
+      head->parent = NULL;
+    }
+  }
+
+  //A right child only
+  else if (head->right != NULL && head->left == NULL && head != root) {
+    if (head->parent->right == head) {
+      head->parent->right = head->right;
+      head->right->parent = head->parent;
+      head = head->right;
+    }
+    else if (head->parent->left == head) {
+      head->parent->left = head->right;
+      head->right->parent = head->parent;
+      head = head->right;
+    }
+  }
+
+  //A right child only of the root
+  else if (head->right != NULL && head->left == NULL && head == root) {
+    root = head->right;
+    head->right = NULL;
+    root->parent = NULL;
+    head = root;
+  }
+
+  //A left child only
+  else if (head->left != NULL && head->right == NULL && head != root) {
+    if (head->parent->right == head) {
+      head->parent->right = head->left;
+      head->left->parent = head->parent;
+      head = head->left;
+    }
+    else if (head->parent->left == head) {
+      head->parent->left = head->left;
+      head->left->parent = head->parent;
+      head = head->left;
+    }
+
+  }
+
+  //A left child only of the root
+  else if (head->left != NULL && head->right == NULL && head == root) {
+    root = head->left;
+    head->right = NULL;
+    root->parent = NULL;
+    head = root;
+  }
+
+  //Two children
+  else if (head->right != NULL && head->left != NULL) {
+    Node* temp = head->right;
+    while (temp->left != NULL) {
+      temp = temp->left;
+    }
+    head->value = temp->value;
+    del(temp, temp->value, root);
+  }
+}
+
+
+void find(Node* head, int in, Node*& root){
+   if (in >= head->value) {
+
+      if (head->right != NULL && head->value != in) {
+        head = head->right;
+        find(head, in, root);
+      }
+
+      else if (head->value == in) {
+        del(head, in, root);
+      }
+
+      else if (head->right == NULL) {
+        cout << "Data point was not found" << endl;
+      }
+
+    }
+    else if (in < head->value) {
+
+      if (head->left != NULL && head->value != in) {
+        head = head->left;
+        find(head, in, root);
+      }
+
+      else if (head->value == in) {
+        del(head, in, root);
+      }
+
+      else if (head->left == NULL) {
+        cout << "Data point was not found" << endl;
+      }
+
+    }
 }
 
 int main() {
